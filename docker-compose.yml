@@ -1,0 +1,32 @@
+version: "3"
+services:
+  api:
+    build: ./api
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mysql
+    command: [ "./node_modules/.bin/nodemon", "index.js" ]
+    ports:
+      - "3000:3000"
+    environment:
+      - CONFIG_SCHEME=local
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+  mysql:
+    image: "mysql:5"
+    command: 'mysqld --sql-mode=""'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./dumps/mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=myappdb
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
